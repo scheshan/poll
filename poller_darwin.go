@@ -15,6 +15,10 @@ func (t *Poller) Add(fd int) error {
 	return t.mod(fd, unix.EV_ADD, unix.EVFILT_READ)
 }
 
+func (t *Poller) AddWrite(fd int) error {
+	return t.mod(fd, unix.EV_ADD, unix.EVFILT_READ, unix.EVFILT_WRITE)
+}
+
 func (t *Poller) Delete(fd int) error {
 	return t.mod(fd, unix.EV_DELETE|unix.EV_ONESHOT, unix.EVFILT_READ, unix.EVFILT_WRITE)
 }

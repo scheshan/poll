@@ -14,6 +14,10 @@ func (t *Poller) Add(fd int) error {
 	return t.mod(fd, unix.EPOLL_CTL_ADD, unix.EPOLLIN)
 }
 
+func (t *Poller) AddWrite(fd int) error {
+	return t.mod(fd, unix.EPOLL_CTL_ADD, unix.EPOLLIN|unix.EPOLLOUT)
+}
+
 func (t *Poller) Delete(fd int) error {
 	return t.mod(fd, unix.EPOLL_CTL_DEL, unix.EPOLLIN|unix.EPOLLOUT)
 }
