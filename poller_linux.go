@@ -46,7 +46,9 @@ func (t *Poller) Wait(waitMs int64, cb Callback) error {
 				flag |= 2
 			}
 
-			cb(int(t.ev[i].Fd), flag)
+			if err := cb(int(t.ev[i].Fd), flag); err != nil {
+				return err
+			}
 		}
 	}
 

@@ -10,4 +10,4 @@ func (t Flag) CanWrite() bool {
 	return t&2 > 0
 }
 
-type Callback func(fd int, flag Flag)
+type Callback func(fd int, flag Flag) error
