@@ -17,7 +17,6 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-
 }
 
 type echoServer struct {
@@ -77,20 +76,23 @@ func (t *echoServer) bindAndListen() error {
 
 func (t *echoServer) loop() {
 	for {
-		t.poller.Wait(1000, t.pollCallback)
+		if err := t.poller.Wait(1000, t.pollCallback); err != nil {
+			log.Fatal(err)
+		}
 	}
 }
 
-func (t *echoServer) pollCallback(fd int, flag poll.Flag) {
+func (t *echoServer) pollCallback(fd int, flag poll.Flag) error {
 	if fd == t.lfd {
 		conn, _, err := unix.Accept(t.lfd)
 		unix.SetNonblock(conn, true)
 		if err != nil {
 			if err == unix.EAGAIN || err == unix.EINTR {
-				return
+				return nil
 			}
 
 			log.Fatal(err)
+			return err
 		}
 
 		t.poller.Add(conn)
@@ -98,20 +100,21 @@ func (t *echoServer) pollCallback(fd int, flag poll.Flag) {
 		n, err := unix.Read(fd, t.buf)
 		if err != nil {
 			if err == unix.EAGAIN || err == unix.EINTR {
-				return
+				return nil
 			}
 
 			unix.Close(fd)
-			return
+			return nil
 		}
 
 		if n == 0 {
 			unix.Close(fd)
-			return
+			return nil
 		}
 
 		unix.Write(fd, t.buf[:n])
 	}
+	return nil
 }
 
 func newEchoServer(port int) (*echoServer, error) {
